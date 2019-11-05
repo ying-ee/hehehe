@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+	   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE*"/>
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script type="text/javascript" src="C:\Users\hynhyn\Downloads\echarts.min.js"></script>
+       <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+var posList = [
+    'left', 'right', 'top', 'bottom',
+    'inside',
+    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+];
+
+app.configParameters = {
+    rotate: {
+        min: -90,
+        max: 90
+    },
+    align: {
+        options: {
+            left: 'left',
+            center: 'center',
+            right: 'right'
+        }
+    },
+    verticalAlign: {
+        options: {
+            top: 'top',
+            middle: 'middle',
+            bottom: 'bottom'
+        }
+    },
+    position: {
+        options: echarts.util.reduce(posList, function (map, pos) {
+            map[pos] = pos;
+            return map;
+        }, {})
+    },
+    distance: {
+        min: 0,
+        max: 100
+    }
+};
+
+app.config = {
+    rotate: 90,
+    align: 'left',
+    verticalAlign: 'middle',
+    position: 'insideBottom',
+    distance: 15,
+    onChange: function () {
+        var labelOption = {
+            normal: {
+                rotate: app.config.rotate,
+                align: app.config.align,
+                verticalAlign: app.config.verticalAlign,
+                position: app.config.position,
+                distance: app.config.distance
+            }
+        };
+        myChart.setOption({
+            series: [{
+                label: labelOption
+            }, {
+                label: labelOption
+            }, {
+                label: labelOption
+            }, {
+                label: labelOption
+            }]
+        });
+    }
+};
+
+
+var labelOption = {
+    normal: {
+        show: false,
+        position: app.config.position,
+        distance: app.config.distance,
+        align: app.config.align,
+        verticalAlign: app.config.verticalAlign,
+        rotate: app.config.rotate,
+        formatter: '{c}  {name|{a}}',
+        fontSize: 16,
+        rich: {
+            name: {
+                textBorderColor: '#fff'
+            }
+        }
+    }
+};
+
+option = {
+    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#4cabce'],
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+            
+        }
+    },
+    legend: {
+        data: ['自动审查模型', '自动审查图纸文档', '辅助审查模型', '辅助审查图纸文档','人工审查']
+    },
+    toolbox: {
+        show: true,
+        orient: 'vertical',
+        left: 'right',
+        top: 'center',
+        feature: {
+            mark: {show: true},
+            dataView: {show: true, readOnly: false},
+            magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+            restore: {show: true},
+            saveAsImage: {show: true}
+        }
+    },
+    calculable: true,
+    xAxis: [
+        {
+            type: 'category',
+            axisTick: {show: false},
+            data: ['建筑', '结构', '给排水', '暖通空调', '电气系统', '管线综合', '内装含导识', '景观', '夜景照明', '幕墙', '弱电智能化', '基坑支护', '管线支吊架','深化其他五专业']
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+    series: [
+        {
+            name: '自动审查模型',
+            type: 'bar',
+            barGap: 0,
+            label: labelOption,
+            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+        },
+        {
+            name: '自动审查图纸文档',
+            type: 'bar',
+            label: labelOption,
+            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+        },
+        {
+            name: '辅助审查模型',
+            type: 'bar',
+            label: labelOption,
+            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+        },
+        {
+            name: '辅助审查图纸文档',
+            type: 'bar',
+            label: labelOption,
+            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+        },
+        {
+            name: '人工审查',
+            type: 'bar',
+            label: labelOption,
+            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+        }
+    ]
+};;
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+       </script>
+   </body>
+</html>
