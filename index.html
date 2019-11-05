@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html style="height: 100%">
+
+<html style="height: 100%" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns="http://www.w3.org/TR/REC-html40">
+<!-- saved from url=(0014)about:internet -->
+<!-- saved from url=(0016)http://localhost -->
    <head>
        <meta charset="utf-8">
 	   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE*"/>
@@ -12,162 +15,220 @@ var dom = document.getElementById("container");
 var myChart = echarts.init(dom);
 var app = {};
 option = null;
-var posList = [
-    'left', 'right', 'top', 'bottom',
-    'inside',
-    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
-    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
-];
-
-app.configParameters = {
-    rotate: {
-        min: -90,
-        max: 90
-    },
-    align: {
-        options: {
-            left: 'left',
-            center: 'center',
-            right: 'right'
-        }
-    },
-    verticalAlign: {
-        options: {
-            top: 'top',
-            middle: 'middle',
-            bottom: 'bottom'
-        }
-    },
-    position: {
-        options: echarts.util.reduce(posList, function (map, pos) {
-            map[pos] = pos;
-            return map;
-        }, {})
-    },
-    distance: {
-        min: 0,
-        max: 100
-    }
-};
-
-app.config = {
-    rotate: 90,
-    align: 'left',
-    verticalAlign: 'middle',
-    position: 'insideBottom',
-    distance: 15,
-    onChange: function () {
-        var labelOption = {
-            normal: {
-                rotate: app.config.rotate,
-                align: app.config.align,
-                verticalAlign: app.config.verticalAlign,
-                position: app.config.position,
-                distance: app.config.distance
+var dataMap = {};
+function dataFormatter(obj) {
+    var pList = ['建筑','结构','给排水','暖通空调','电气系统','管线综合','内装含导识','景观','夜景照明','幕墙','弱电智能化','基坑支护','管线支吊架','深化其他五专业'];
+    var temp;
+    for (var year = 2002; year <= 2004; year++) {
+        var max = 0;
+        var sum = 0;
+        temp = obj[year];
+        for (var i = 0, l = temp.length; i < l; i++) {
+            max = Math.max(max, temp[i]);
+            sum += temp[i];
+            obj[year][i] = {
+                name : pList[i],
+                value : temp[i]
             }
-        };
-        myChart.setOption({
-            series: [{
-                label: labelOption
-            }, {
-                label: labelOption
-            }, {
-                label: labelOption
-            }, {
-                label: labelOption
-            }]
-        });
+        }
+        obj[year + 'max'] = Math.floor(max / 100) * 100;
+        obj[year + 'sum'] = sum;
     }
-};
+    return obj;
+}
 
+dataMap.dataPI = dataFormatter({
+    //max : 4000,
+    2004:[1,0,0,0,0,0,0,0,0,0,0,0,4,0],//文档自动审查
+    2003:[4,3,6,2,11,1,18,8,2,3,4,3,9,0],//图纸自动审查
+    2002:[32,2,22,4,8,2,4,8,4,8,13,0,7,0]//模型自动审查
+});
 
-var labelOption = {
+dataMap.dataSI = dataFormatter({
+    //max : 26600,
+    2004:[0,0,0,0,0,1,0,0,0,0,0,0,3,0],//文档辅助审查
+    2003:[1,2,0,0,2,0,2,0,0,13,0,7,4,0],//图纸辅助审查
+    2002:[3,5,0,1,0,4,0,1,0,1,7,0,1,0]//模型辅助审查
+});
+
+dataMap.dataTI = dataFormatter({
+    //max : 25000,
+    2004:[0,0,0,0,0,0,0,1,0,5,0,0,1,0],//文档人工审查
+    2003:[0,6,0,0,0,0,3,0,0,2,0,4,0,34],//图纸人工审查
+    2002:[0,0,0,0,0,0,0,0,0,0,0,0,0,0]//模型人工审查
+});
+
+var itemStyle = {
     normal: {
-        show: false,
-        position: app.config.position,
-        distance: app.config.distance,
-        align: app.config.align,
-        verticalAlign: app.config.verticalAlign,
-        rotate: app.config.rotate,
-        formatter: '{c}  {name|{a}}',
-        fontSize: 16,
-        rich: {
-            name: {
-                textBorderColor: '#fff'
-            }
-        }
+    },
+    emphasis: {
+        barBorderWidth: 1,
+        shadowBlur: 10,
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+        shadowColor: 'rgba(0,0,0,0.5)'
     }
 };
 
 option = {
-    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#4cabce'],
-    tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-            type: 'shadow'
-            
-        }
+    baseOption: {
+        timeline: {
+            // y: 0,
+            axisType: 'category',
+            // realtime: false,
+            // loop: false,
+            autoPlay: false,
+            // currentIndex: 2,
+            playInterval: 1000,
+            // controlStyle: {
+            //     position: 'left'
+            // },
+            data: [
+                '模型','图纸','文档'
+                
+            ]
+        },
+		color: ['#67e0e3', '#ffdb5c', '#37a2da'],
+        title: {
+            subtext: '数据来自在线规则库'
+        },
+		tooltip: {
+        },
+        legend: {
+            x: 'right',
+            data: ['自动审查', '辅助审查', '人工审查']     
+        },
+        calculable : true,
+        grid: {
+            top: 80,
+            bottom: 100,
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow',
+                    label: {
+                        show: true,
+                        formatter: function (params) {
+                            return params.value.replace('\n', '');
+                        }
+                    }
+                }
+            }
+        },
+        xAxis: [
+            {
+                'type':'category',
+                'axisLabel':{'interval':0},
+                'data':[
+                    '建筑','\n结构','给排水','\n暖通空调','电气系统','\n管线综合','内装含导识','\n景观',
+                    '夜景照明','\n幕墙','弱电智能化','\n基坑支护','管线支吊架','\n深化其他五专业'
+                ],
+                splitLine: {show: false}
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                name: '规则（条数）'
+            }
+        ],
+        series: [
+            {name: '自动审查', type: 'bar'},
+            {name: '辅助审查', type: 'bar'},
+            {name: '人工审查', type: 'bar'},
+            {
+                name: '条数占比',
+				color: ['#aaa', '#bbb', '#ccc'],
+                type: 'pie',
+                center: ['73%', '25%'],
+                radius: '28%',
+                z: 100
+            }
+        ]
     },
-    legend: {
-        data: ['自动审查模型', '自动审查图纸文档', '辅助审查模型', '辅助审查图纸文档','人工审查']
-    },
-    toolbox: {
-        show: true,
-        orient: 'vertical',
-        left: 'right',
-        top: 'center',
-        feature: {
-            mark: {show: true},
-            dataView: {show: true, readOnly: false},
-            magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
-            restore: {show: true},
-            saveAsImage: {show: true}
-        }
-    },
-    calculable: true,
-    xAxis: [
+    options: [
         {
-            type: 'category',
-            axisTick: {show: false},
-            data: ['建筑', '结构', '给排水', '暖通空调', '电气系统', '管线综合', '内装含导识', '景观', '夜景照明', '幕墙', '弱电智能化', '基坑支护', '管线支吊架','深化其他五专业']
-        }
-    ],
-    yAxis: [
-        {
-            type: 'value'
-        }
-    ],
-    series: [
-        {
-            name: '自动审查模型',
-            type: 'bar',
-            barGap: 0,
-            label: labelOption,
-            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+            title: {text: '模型'},
+            series: [
+                {data: dataMap.dataPI['2002'],itemStyle: itemStyle,
+				stack: '总量',
+				
+				label: {
+                normal: {
+                	show: true,
+					position: 'insideBottom',
+                	formatter: function (params) {
+                    	if (params.value > 0) {
+                        	return params.value;
+                    	} else {
+                        	return '';
+                    	}
+                	}
+	             }
+			    }
+				},
+                {data: dataMap.dataSI['2002'],itemStyle: itemStyle,
+				stack: '总量',
+				label: {
+                normal: {
+                	show: true,
+					position: 'insideBottom',
+                	formatter: function (params) {
+                    	if (params.value > 0) {
+                        	return params.value;
+                    	} else {
+                        	return '';
+                    	}
+                	}
+	             }
+			    }},
+                {data: dataMap.dataTI['2002'],itemStyle: itemStyle,
+				stack: '总量',
+				label: {
+                normal: {
+                	show: true,
+					position: 'insideBottom',
+                	formatter: function (params) {
+                    	if (params.value > 0) {
+                        	return params.value;
+                    	} else {
+                        	return '';
+                    	}
+                	}
+	             }
+			    }},
+                {data: [
+                    {name: '自动审查', value: dataMap.dataPI['2002sum']},
+                    {name: '辅助审查', value: dataMap.dataSI['2002sum']},
+                    {name: '人工审查', value: dataMap.dataTI['2002sum']}
+                ]}
+            ]
         },
         {
-            name: '自动审查图纸文档',
-            type: 'bar',
-            label: labelOption,
-            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+            title : {text: '图纸'},
+            series : [
+                {data: dataMap.dataPI['2003'],itemStyle: itemStyle},
+                {data: dataMap.dataSI['2003'],itemStyle: itemStyle},
+                {data: dataMap.dataTI['2003'],itemStyle: itemStyle},
+                {data: [
+                    {name: '自动审查', value: dataMap.dataPI['2003sum']},
+                    {name: '辅助审查', value: dataMap.dataSI['2003sum']},
+                    {name: '人工审查', value: dataMap.dataTI['2003sum']}
+                ]}
+            ]
         },
         {
-            name: '辅助审查模型',
-            type: 'bar',
-            label: labelOption,
-            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
-        },
-        {
-            name: '辅助审查图纸文档',
-            type: 'bar',
-            label: labelOption,
-            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
-        },
-        {
-            name: '人工审查',
-            type: 'bar',
-            label: labelOption,
-            data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 390]
+            title : {text: '文档'},
+            series : [
+                {data: dataMap.dataPI['2004'],itemStyle: itemStyle},
+                {data: dataMap.dataSI['2004'],itemStyle: itemStyle},
+                {data: dataMap.dataTI['2004'],itemStyle: itemStyle},
+                {data: [
+                    {name: '自动审查', value: dataMap.dataPI['2004sum']},
+                    {name: '模型审查', value: dataMap.dataSI['2004sum']},
+                    {name: '人工审查', value: dataMap.dataTI['2004sum']}
+                ]}
+            ]
         }
     ]
 };;
